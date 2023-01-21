@@ -34,7 +34,30 @@ function checksCreateTodosUserAvailability(request, response, next) {
 }
 
 function checksTodoExists(request, response, next) {
-  // Complete aqui
+  const { username } = request.headers
+  const { id } = request.params
+
+  const user = users.find(user => user.username === username)
+
+  if (user) {
+    const todos = user.todos
+    const todo = todos.find(todo => todo.id === id)
+  
+    if (!checkIfValidUUID(id)) {
+      return response.status(400).json({ 'error': 'Invalid todo item' })
+    }
+  
+    if (!todo) {
+      return response.status(404).json({ 'error': 'Todo does not exist' })
+    }
+    
+    request.user = user
+    request.todo = todo  
+  } else {
+    return response.status(404).json({ 'error': 'User does not exist' })
+  }
+  
+  next()
 }
 
 function findUserById(request, response, next) {
